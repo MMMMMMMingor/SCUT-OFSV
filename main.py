@@ -1,8 +1,77 @@
-
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.stats as stats
+import time
+
+
+class my_timer():
+    def __init__(self, str):
+        print(str)
+
+    def __enter__(self):
+        self.start = time.time()
+
+    def __exit__(self, exc_type, exc_value, exc_traceback):
+        print(f"    cost: {time.time() - self.start} seconds")
+
+
+def derivation(seq, ts=None) -> np.ndarray:
+    """
+        two order regression
+        seq: x, y coordinates sequence
+        ts: int or pd.Series, unit is milisecond
+    """
+    N = len(seq)
+
+    if(type(ts) == int):
+        d_ts = np.zeros(N, dtype="int") + ts
+    elif(type(ts) == pd.Series):
+        d_ts = ts.diff(2) / 2
+    else:
+        raise Exception("ts error")
+
+    d_seq = np.zeros((N))
+
+    d_seq[0] = (2*seq[2] + seq[1] - 3*seq[0]) / 5
+    d_seq[1] = (2*seq[3] + seq[2] - 2*seq[1] - seq[0]) / 6
+    for i in range(2, N - 2):
+        d_seq[i] = (2*seq[i+2] + seq[i+1] - seq[i-1] - 2*seq[i-2]) / d_ts[i]
+    d_seq[N - 2] = (seq[N-1] + 2*seq[N-2] - 2*seq[N-3] - seq[N-4]) / 6
+    d_seq[N - 1] = (3*seq[N-1] - seq[N-2] - 2*seq[N-3]) / 5
+
+    return d_seq
+
+
+def feature_extraction(data: pd.DataFrame) -> pd.DataFrame:
+    ts = data["ts"] if "ts" in data.columns else 10
+
+    d_x = derivation(data["x"], ts=ts)
+    d_y = derivation(data["y"], ts=ts)
+
+    vel = np.sqrt(d_x*d_x + d_y*d_y)  # velocity
+
+    N = len(d_x)
+    angel = np.zeros((N))  # angel
+    for i in range(N):
+        if d_x[i] != 0:
+            angel[i] = np.arctan(d_y[i] / d_x[i])
+        elif d_x[i] == 0 and d_y[i] > 0:
+            angel[i] = np.pi / 2
+        elif d_x[i] == 0 and d_y[i] < 0:
+            angel[i] = -np.pi / 2
+        else:
+            angel[i] = 0
+
+    d_vel = derivation(vel, ts)
+    d_angle = derivation(angel, ts)
+
+    # log curvature radius
+    logcr = np.log((np.abs(vel) + 0.01) / (np.abs(d_angle) + 0.01))
+    # total acceleration magnitude
+    tam = np.sqrt((d_vel*d_vel) + (vel*vel*d_angle*d_angle))
+
+    return pd.concat([data, pd.DataFrame({"vel": vel, "angel": angel, "logcr": logcr, "tam": tam})], axis=1)
 
 
 def read_MMSIG(user_no: int, index: int) -> pd.DataFrame:
@@ -11,8 +80,11 @@ def read_MMSIG(user_no: int, index: int) -> pd.DataFrame:
     else:
         filename = f"../inair/U{user_no}S{index}.txt"
 
-    data = pd.read_table(filename, sep=" ", dtype="int", header=None)
+    data = pd.read_table(filename, sep=" ", dtype="int",
+                         header=None, names=["x", "y"])
 
+    # feature extraction & data preprocess
+    data = feature_extraction(data)
     data = data.apply(stats.zscore)
 
     return data
@@ -22,12 +94,14 @@ def read_SVC2004(user_no: int, index: int) -> pd.DataFrame:
     filename = f"../SVC2004/U{user_no}S{index}.TXT"
 
     data = pd.read_table(filename, sep=" ", skiprows=1,
-                         dtype="int", header=None)
+                         dtype="int", header=None, names=["x", "y", "ts", "pen"])
 
+    # feature extraction & data preprocess
+    data = feature_extraction(data)
     data = data.apply(stats.zscore)
 
     # return data
-    return data.drop(columns=[2])
+    return data.drop(columns=["ts", "pen"])
 
 
 def plot_signatures(read_fun, user_no: int, sig_num: int, inverse_axis=False):
@@ -40,7 +114,7 @@ def plot_signatures(read_fun, user_no: int, sig_num: int, inverse_axis=False):
     for sig in range(1, sig_num + 1):
         data = read_fun(user_no, sig)
 
-        data_x, data_y = data.iloc[:, 0], data.iloc[:, 1]
+        data_x, data_y = data["x"], data["y"]
 
         ax = ax_arr[int((sig - 1) / 10), int(sig % 10) - 1]
         ax.get_xaxis().set_visible(False)
@@ -61,23 +135,22 @@ def pcolormesh_DTW(read_fun, user_no: int, sig_num: int, verbose=False):
     """
     sig_array = [read_fun(user_no, i + 1) for i in range(sig_num)]
 
-    # print(sig_array[0])
-
     dist_mesh = np.zeros((sig_num, sig_num))
 
-    for sig in range(sig_num):
+    with my_timer("pcolormesh_DTW..."):
+        for sig in range(sig_num):
 
-        for other_sig in range(sig + 1, sig_num):
-            if(sig == other_sig):
-                continue
+            for other_sig in range(sig + 1, sig_num):
+                if(sig == other_sig):
+                    continue
 
-            data1 = sig_array[sig]
-            data2 = sig_array[other_sig]
-            dist = DTW(data1, data2)
-            dist_mesh[sig, other_sig] = dist
+                data1 = sig_array[sig]
+                data2 = sig_array[other_sig]
+                dist = DTW(data1, data2)
+                dist_mesh[sig, other_sig] = dist
 
-            if(verbose):
-                print(f"sig: {sig}, other_sig: {other_sig}, DTW: {dist}")
+                if(verbose):
+                    print(f"sig: {sig}, other_sig: {other_sig}, DTW: {dist}")
 
     dist_mesh = dist_mesh + dist_mesh.T
 
@@ -87,8 +160,8 @@ def pcolormesh_DTW(read_fun, user_no: int, sig_num: int, verbose=False):
 
 def DTW(lhs: pd.DataFrame, rhs: pd.DataFrame):
     """
-    dynamic timing warping
-        lhs and rhs should have same features num.
+    dependent dynamic timing warping
+        lhs and rhs should have same number of features.
     """
     lhs, rhs = lhs.to_numpy().T, rhs.to_numpy().T
     features_num, N = lhs.shape
@@ -107,89 +180,195 @@ def DTW(lhs: pd.DataFrame, rhs: pd.DataFrame):
         d += res
 
     # DTW core (dynamic program)
-    D = np.zeros((N, M))
-    D[0, 0] = d[0, 0]
+    D = d
 
     for i in range(1, N):
-        D[i, 0] = d[i, 0] + D[i - 1, 0]
+        D[i, 0] += D[i - 1, 0]
 
     for j in range(1, M):
-        D[0, j] = d[0, j] + D[0, j - 1]
+        D[0, j] += D[0, j - 1]
 
     for i in range(1, N):
         for j in range(1, M):
-            D[i, j] = d[i, j] + min(D[i - 1, j], D[i - 1, j - 1], D[i, j - 1])
+            D[i, j] += min(D[i - 1, j], D[i - 1, j - 1], D[i, j - 1])
 
-    return D[N - 1, M - 1]
+    avg_L = np.sqrt(M * N)
+
+    return D[N - 1, M - 1] / avg_L
 
 
-def classification(read_fun, users_num: int, training_sample: int, genuine: int, forged: int):
-    if training_sample <= 0 or genuine < training_sample or forged < 0:
+def user_independent_ROC(users_num: int, training: int, genuine: int, forged: int, DTW_matrix) -> float:
+    threshold_array = np.arange(0, 5, 0.01, dtype="float")
+    FA = np.zeros(len(threshold_array), dtype="int")
+    FR = np.zeros(len(threshold_array), dtype="int")
+
+    # print(DTW_matrix)
+
+    for index, thre in enumerate(threshold_array):
+        for u in range(users_num):
+            for sig in range(training, genuine):
+                if DTW_matrix[u, sig] > thre:
+                    FR[index] = FR[index] + 1
+
+            for sig in range(genuine, genuine + forged):
+                if DTW_matrix[u, sig] < thre:
+                    FA[index] = FA[index] + 1
+
+    # calculate cross point (EER)
+    genuine_count = users_num * (genuine - training)
+    forged_count = users_num * forged
+    FAR = FA / forged_count
+    FRR = FR / genuine_count
+
+    idx = np.argwhere(np.diff(np.sign(FAR - FRR))).reshape(-1) + 1
+    if len(idx) == 0:
+        raise Exception("no cross point")
+    idx = idx[0]
+    EER = ((FRR[idx] + FAR[idx]) / 2)
+
+    plt.plot(FRR, FAR, label="ROC")
+    plt.plot(FRR[idx], EER, 'ro',
+             label=f"EER: {round(EER*100, 2)}%")
+    plt.title("user independent ROC")
+    plt.xlabel("False Reject Rate")
+    plt.ylabel("False Acept Rate")
+    plt.legend()
+    # plt.show()
+
+    print(f"user-independent EER: {EER}, threshold: {threshold_array[idx]}")
+    return EER
+
+
+def user_dependent_ROC(users_num: int, training: int, genuine: int, forged: int, DTW_matrix) -> float:
+    threshold_array = np.arange(0, 5, 0.01, dtype="float")
+    l = len(threshold_array)
+    EER = np.zeros(users_num, dtype="float")
+    EER_idx = np.zeros(users_num, dtype="float")
+
+    # print(DTW_matrix)
+
+    for u in range(users_num):
+        FA = np.zeros(l, dtype="int")
+        FR = np.zeros(l, dtype="int")
+        for index, thre in enumerate(threshold_array):
+            for sig in range(training, genuine):
+                if DTW_matrix[u, sig] > thre:
+                    FR[index] = FR[index] + 1
+
+            for sig in range(genuine, genuine + forged):
+                if DTW_matrix[u, sig] < thre:
+                    FA[index] = FA[index] + 1
+
+        # calculate cross point EER)
+        FAR = FA / forged
+        FRR = FR / (genuine - training)
+
+        idx = np.argwhere(np.diff(np.sign(FAR - FRR))).reshape(-1)
+        if len(idx) == 0:
+            raise Exception(f"no cross point, user_no: {u + 1}")
+
+        idx = idx[0]
+        EER_idx[u] = threshold_array[idx]
+        EER[u] = np.mean((FRR[idx] + FAR[idx]) / 2)
+
+    print("user-dependent threshold", EER_idx)
+
+    # calculate mean (EER)
+    EER = np.mean(EER)
+
+    print(f"user-dependent EER: {EER}")
+    return EER
+
+
+def single_tpl_min_based_classify(read_fun, users_num: int, training: int, genuine: int, forged: int):
+    if training <= 0 or genuine < training or forged < 0:
         raise Exception("args has error")
 
     sig_num = genuine + forged
 
     # loading signature
-    users_data = []
-    for u in range(users_num):
-        sig_arr = [read_fun(u + 1, sig + 1) for sig in range(sig_num)]
-        users_data.append(sig_arr)
+    with my_timer("loading signature... "):
+        users_data = []
+        for u in range(users_num):
+            sig_arr = [read_fun(u + 1, sig + 1) for sig in range(sig_num)]
+            users_data.append(sig_arr)
+
+    # finding the signature has minimum DTW with others
+    with my_timer("finding the signature has minimum DTW with others..."):
+        training_data = []
+        for u in range(users_num):
+            DTW_between = np.zeros((training, training))
+            for sig in range(training):
+                for other_sig in range(sig + 1, training):
+                    DTW_between[sig, other_sig] = DTW(
+                        users_data[u][sig], users_data[u][other_sig])
+
+            DTW_between = DTW_between + DTW_between.T
+
+            min_idx = np.argmin(np.sum(DTW_between, axis=0))
+            training_data.append(users_data[u][min_idx])
+
+    # calculate DTW with the minimum signature
+    with my_timer("calculating DTW... "):
+        DTW_all = np.zeros((users_num, sig_num))
+        for u in range(users_num):
+            for sig in range(training, sig_num):
+                DTW_all[u, sig] = DTW(users_data[u][sig], training_data[u])
+
+    # # calculate FAR, FRR, EER
+    with my_timer("calculating EER... "):
+        ERR = user_dependent_ROC(users_num, training,
+                                 genuine, forged, DTW_all)
+        ERR = user_independent_ROC(users_num, training,
+                                   genuine, forged, DTW_all)
+
+
+def mul_tpl_mean_based_classify(read_fun, users_num: int, training: int, genuine: int, forged: int):
+    if training <= 0 or genuine < training or forged < 0:
+        raise Exception("args has error")
+
+    sig_num = genuine + forged
+
+    # loading signature
+    with my_timer("loading signature... "):
+        users_data = []
+        for u in range(users_num):
+            sig_arr = [read_fun(u + 1, sig + 1) for sig in range(sig_num)]
+            users_data.append(sig_arr)
 
     # calculate DTW
-    DTW_res = np.zeros((users_num, sig_num, training_sample))
-    for u in range(users_num):
-        for sig in range(training_sample, sig_num):
-            for other_sig in range(training_sample):
-                DTW_res[u, sig, other_sig] = DTW(users_data[u][sig],
-                                                 users_data[u][other_sig])
+    with my_timer("calculating mean DTW... "):
+        DTW_all = np.zeros((users_num, sig_num, training))
+        for u in range(users_num):
+            for sig in range(training, sig_num):
+                for other_sig in range(training):
+                    DTW_all[u, sig, other_sig] = DTW(users_data[u][sig],
+                                                     users_data[u][other_sig])
 
-    DTW_mean = np.zeros((users_num, sig_num))
-    for u in range(users_num):
-        for sig in range(training_sample, sig_num):
-            DTW_mean[u, sig] = np.mean(DTW_res[u, sig])
+        DTW_mean = np.zeros((users_num, sig_num))
+        for u in range(users_num):
+            for sig in range(training, sig_num):
+                DTW_mean[u, sig] = np.mean(DTW_all[u, sig])
 
     # calculate FAR, FRR, EER
-    threshold_array = np.arange(5, 200, 5, dtype="float")
-    FA = np.zeros(len(threshold_array), dtype="float")
-    FR = np.zeros(len(threshold_array), dtype="float")
-
-    for index, thre in enumerate(threshold_array):
-        for u in range(users_num):
-            for sig in range(training_sample, genuine):
-                if DTW_mean[u, sig] > thre:
-                    FR[index] = FR[index] + 1
-
-            for sig in range(genuine, genuine + forged):
-                if DTW_mean[u, sig] < thre:
-                    FA[index] = FA[index] + 1
-
-    genuine_count = users_num * (genuine - training_sample)
-    forged_count = users_num * forged
-    FAR = FA / genuine_count
-    FRR = FR / forged_count
-    # calculate cross point (ERR)
-    idx = np.argwhere(np.diff(np.sign(FAR - FRR))).flatten()
-
-    plt.plot(threshold_array, FAR, label="FAR")
-    plt.plot(threshold_array, FRR, label="FRR")
-    plt.plot(threshold_array[idx], FRR[idx], 'ro', label="ERR")
-    plt.title("ROC")
-    plt.xlabel('threhold')
-    plt.ylabel('percentage')
-    plt.legend()
-    plt.show()
+    with my_timer("calculating EER... "):
+        ERR = user_dependent_ROC(users_num, training,
+                                 genuine, forged, DTW_mean)
+        ERR = user_independent_ROC(users_num, training,
+                                   genuine, forged, DTW_mean)
 
 
 if __name__ == "__main__":
 
-    # plot_signatures(read_SVC2004, 1, 40)
+    # plot_signatures(read_MMSIG, 26, 40)
 
-    # pcolormesh_DTW(read_SVC2004, 3, 40, True)
+    # pcolormesh_DTW(read_MMSIG, 26, 40, True)
 
     users_num = 5
-    training_sample = 5
+    training = 5
     genuine = 20
     forged = 20
-    classification(read_SVC2004, users_num, training_sample, genuine, forged)
+    single_tpl_min_based_classify(read_SVC2004, users_num,
+                                  training, genuine, forged)
 
     pass
