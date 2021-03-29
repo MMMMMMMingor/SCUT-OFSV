@@ -1,0 +1,24 @@
+{
+  "name": "web",
+  "version": "1.0.0",
+  "description": "online air hand-ignature verification",
+  "private": true,
+  "scripts": {
+    "start": "",
+    "build": "webpack"
+  },
+  "author": "mingor",
+  "license": "ISC",
+  "dependencies": {
+    "@mediapipe/camera_utils": "^0.1.1606863050",
+    "@mediapipe/control_utils": "^0.1.1606863011",
+    "@mediapipe/hands": "^0.1.1614621970"
+  },
+  "devDependencies": {
+    "css-loader": "^5.2.0",
+    "html-webpack-plugin": "^5.3.1",
+    "style-loader": "^2.0.0",
+    "webpack": "^5.28.0",
+    "webpack-cli": "^4.6.0"
+  }
+}

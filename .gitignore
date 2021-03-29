@@ -3,15 +3,18 @@
 __pycache__
 
 # dependencies
-/node_modules
+*/node_modules
 /.pnp
 .pnp.js
+*/dist
 
 # testing
 /coverage
 
 # production
 /build
+
+.vscode/
 
 # misc
 .DS_Store

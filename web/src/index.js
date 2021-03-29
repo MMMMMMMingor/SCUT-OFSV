@@ -1,3 +1,9 @@
+import { Camera } from "@mediapipe/camera_utils/camera_utils";
+import { FPS, ControlPanel, StaticText } from "@mediapipe/control_utils/control_utils";
+import { Hands } from "@mediapipe/hands/hands";
+import "@mediapipe/control_utils/control_utils.css"
+import "./index.css"
+
 const videoElement = document.getElementsByClassName("input_video")[0];
 const canvasElement = document.getElementById("real_canvas");
 const fakeCanvasElement = document.getElementById("fake_canvas");
@@ -14,7 +20,7 @@ canvasCtx.lineWidth = 3;
 
 fakeCanvasCtx.fillStyle = "#ff0000";
 
-var data = [];
+let data = [];
 
 // We'll add this to our control panel later, but we'll save it here so we can
 // call tick() each time the graph runs.
@@ -78,7 +84,7 @@ function drawLandmarks(ctx, last, cur) {
 }
 
 function drawPoints(ctx, points) {
-    for (p of points) {
+    for (const p of points) {
         let x = canvasElement.width * p.x;
         let y = canvasElement.height * p.y;
         let r = 4;
@@ -93,6 +99,9 @@ function onResults(results) {
     // Update the frame rate.
     fpsControl.tick();
 
+    // Hide the spinner.
+    document.body.classList.add("loaded");
+
     // Draw the overlays.
     canvasCtx.save();
 
@@ -100,8 +109,6 @@ function onResults(results) {
 
     if (results.multiHandLandmarks && results.multiHandedness) {
         for (let landmarks of results.multiHandLandmarks) {
-            // Hide the spinner.
-            document.body.classList.add("loaded");
 
             var thumb = landmarks[4];
             var index_finger = landmarks[8]

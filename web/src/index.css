@@ -23,33 +23,33 @@ body {
 
 .container {
   position: absolute;
-  background-image: linear-gradient( 65.9deg, rgba(85, 228, 224, 1) 5.5%, rgba(75, 68, 224, 0.74) 54.2%, rgba(64, 198, 238, 1) 55.2%, rgba(177, 36, 224, 1) 98.4%);
+  background-image: radial-gradient( circle farthest-corner at 12.3% 19.3%,  rgba(85,88,218,1) 0%, rgba(95,209,249,1) 100.2% );
   height: 100%;
   width: 100%;
 }
 
 .input_video {
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 1;
+  z-index: -2;
   transform: scale(-1, 1);
   object-fit:unset;
 }
 
 .output_canvas {
-  position: fixed;
+  position: absolute;
   width: 100vw;
   height: 100vh;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 2;
+  z-index: -1;
   transform: scale(-1, 1);
 }
 
@@ -91,6 +91,10 @@ body {
   opacity: 0;
 }
 
+.loaded .container{
+  z-index: -3;
+}
+
 .btn {
   position: fixed;
   width: 10vw;
@@ -104,13 +108,19 @@ body {
 }
 
 #finish_btn{
-  background-color: green;
+  background-color: rgb(57, 167, 57);
+  font-size: 2rem;
   right: 16vw;
   bottom: 3vh;
+  border: 0;
+  opacity: 0.8;
 }
 
 #clear_btn {
-  background-color: red;
+  background-color: rgb(212, 62, 62);
+  font-size: 2rem;
   right: 3vw;
   bottom: 3vh;
+  border: 0;
+  opacity: 0.8;
 }
