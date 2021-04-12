@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import util
 import numpy as np
-import dtw
+import algo.core.dtw as dtw
 
 
 def plot_signatures(read_fun, user_no: int, sig_num: int, inverse_axis=False):

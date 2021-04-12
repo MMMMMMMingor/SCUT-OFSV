@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 
-def DTW(lhs: np.ndarray, rhs: np.ndarray, penalty=0, with_path=False, local_stability=None):
+def __dtw_core(lhs: np.ndarray, rhs: np.ndarray, penalty=0, local_stability=None):
     """
     dependent dynamic timing warping
         lhs and rhs should have same number of features.
@@ -49,8 +49,21 @@ def DTW(lhs: np.ndarray, rhs: np.ndarray, penalty=0, with_path=False, local_stab
     # result = D[N - 1, M - 1] / avg_L
     result = D[N - 1, M - 1]
 
-    if with_path == False:
-        return result
+    return result, D
+
+
+def DTW(lhs: np.ndarray, rhs: np.ndarray, penalty=0, local_stability=None):
+    result, _ = __dtw_core(lhs, rhs, penalty=penalty, local_stability=local_stability)
+
+    return result
+
+
+def DTW_with_path(lhs: np.ndarray, rhs: np.ndarray, penalty=0, local_stability=None):
+    N, _ = lhs.shape
+    M, _ = rhs.shape
+
+    result, D = __dtw_core(lhs, rhs, penalty=penalty,
+                      local_stability=local_stability)
 
     # return the DTW path
     path = []

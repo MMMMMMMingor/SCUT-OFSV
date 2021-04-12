@@ -18,7 +18,7 @@ if __name__ == "__main__":
 
     # comm_plot.heatmap_DTW(read_SVC2004_2, 1, 40, True)
 
-    users_num = 40
+    users_num = 2
     training = 5
     genuine = 20
     forged = 20
@@ -46,8 +46,8 @@ if __name__ == "__main__":
     # EB_DBA_based_classify(read_MMSIG, 50,
     #                       training, genuine, forged, times, penalty)
 
-    # LS_DBA_based_classify(read_SVC2004, users_num,
-    #                       training, genuine, forged, times, penalty)
+    LS_DBA_based_classify(read_SVC2004, users_num,
+                          training, genuine, forged, times, penalty)
     # LS_DBA_based_classify(read_SVC2004_2, users_num,
     #                       training, genuine, forged, times, penalty)
     # LS_DBA_based_classify(read_MMSIG, 50, training,

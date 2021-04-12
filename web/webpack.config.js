@@ -10,11 +10,11 @@ module.exports = {
     entry: './src/index.js',
     output: {
         path: path.resolve(__dirname, './dist'),
-        filename: 'index.js',
+        filename: 'osv.js',
     },
     plugins: [
         new HtmlWebpackPlugin({
-            filename: './index.html',
+            filename: './osv.html',
             template: './public/index.html'
         })
     ],
