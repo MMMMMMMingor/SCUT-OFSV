@@ -1,5 +1,4 @@
 import numpy as np
-import util
 import scipy.stats as stats
 import pandas as pd
 
@@ -111,3 +110,13 @@ def read_SVC2004_2(user_no: int, index: int) -> pd.DataFrame:
 
     # return data
     return data.drop(columns=["ts", "pen", "Az", "Al"])
+
+
+def read_json(json: dict) -> pd.DataFrame:
+    # data = pd.DataFrame.from_dict(json, dtype="int")
+    data = pd.DataFrame(json, dtype="int")
+
+    # feature extraction & data preprocess
+    data = feature_extraction(data)
+
+    return data
