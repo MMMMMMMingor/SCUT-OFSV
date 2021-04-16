@@ -5,8 +5,13 @@
 ```shell
 pip install -r requirements.txt
 
+# test signature verification algorithm
 cd src
 python main.py
+
+# run osv server
+cd src/server
+python server.py
 ```
 
 ---

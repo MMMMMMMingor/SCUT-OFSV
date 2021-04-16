@@ -22,7 +22,7 @@ def get_single_min_tpl(training_data: list, penalty=0) -> np.ndarray:
 
 
 # mean-based multipul template strategy
-def get_multi_mean_dtw(training_data: list, test_data: list, penalty=0) -> float:
+def get_multi_mean_dtw(training_data: list, test_data: np.ndarray, penalty=0) -> float:
     train_num = len(training_data)
 
     DTW_result = np.zeros((train_num))
@@ -89,7 +89,7 @@ def get_eb_dba_tpl(training_data: list, times: int, penalty=0) -> np.ndarray:
 
 
 # EB-DBA single template stratgy
-def get_ls_dba_tpl(training_data: list, times: int, penalty=0) -> np.ndarray:
+def get_ls_dba_tpl(training_data: list, times: int, penalty=0) -> (np.ndarray, np.ndarray):
     train_num = len(training_data)
 
     # linerear interpolation

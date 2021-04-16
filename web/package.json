@@ -4,7 +4,7 @@
   "description": "online air hand-ignature verification",
   "private": true,
   "scripts": {
-    "start": "",
+    "start": "npx serve -s src",
     "build": "webpack"
   },
   "author": "mingor",
@@ -12,7 +12,8 @@
   "dependencies": {
     "@mediapipe/camera_utils": "^0.1.1606863050",
     "@mediapipe/control_utils": "^0.1.1606863011",
-    "@mediapipe/hands": "^0.1.1614621970"
+    "@mediapipe/hands": "^0.1.1614621970",
+    "axios": "^0.21.1"
   },
   "devDependencies": {
     "css-loader": "^5.2.0",
