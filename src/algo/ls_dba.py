@@ -11,8 +11,6 @@ def LS_DBA_based_classify(read_fun, users_num: int, training: int, genuine: int,
         raise Exception("args has error")
 
     sig_sum = genuine + forged
-    avg_L = []  # average length
-    Paths = []  # DTW paths
 
     # loading signature
     with util.my_timer("loading signature... "):

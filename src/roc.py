@@ -9,8 +9,6 @@ def user_independent_ROC(users_num: int, training: int, genuine: int, forged: in
     FA = np.zeros(len(threshold_array), dtype="int")
     FR = np.zeros(len(threshold_array), dtype="int")
 
-    # print(DTW_matrix)
-
     for index, thre in enumerate(threshold_array):
         for u in range(users_num):
             for sig in range(training, genuine):
@@ -55,6 +53,8 @@ def user_dependent_ROC(users_num: int, training: int, genuine: int, forged: int,
     l = len(threshold_array)
     EER = np.zeros(users_num, dtype="float")
     EER_idx = np.zeros(users_num, dtype="float")
+
+    print(DTW_matrix)
 
     for u in range(users_num):
         FA = np.zeros(l, dtype="int")

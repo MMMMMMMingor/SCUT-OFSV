@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>online signature verification</title>
+</head>
+
+<body class="font-serif text-white">
+  <div class="absolute min-h-screen w-full bg-gradient-to-r from-gray-200 to-gray-800">
+    <video class="input_video"></video>
+    <canvas id="real_canvas" class="output_canvas"></canvas>
+    <canvas id="fake_canvas" class="output_canvas"></canvas>
+    <div class="loading">
+      <div class="spinner"></div>
+      <div class="text-sm">Loading</div>
+    </div>
+    <button id="finish_btn" class="btn bg-green-600 right-28">Finish</button>
+    <button id="clear_btn" class="btn bg-white text-black right-3">Clear</button>
+  </div>
+  <div id="control_panel"></div>
+</body>
+
+</html>

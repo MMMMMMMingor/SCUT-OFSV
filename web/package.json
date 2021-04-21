@@ -1,10 +1,10 @@
 {
-  "name": "web",
+  "name": "signature_web_client",
   "version": "1.0.0",
   "description": "online air hand-ignature verification",
   "private": true,
   "scripts": {
-    "start": "npx serve -s src",
+    "start": "npx webpack serve",
     "build": "webpack"
   },
   "author": "mingor",
@@ -13,13 +13,22 @@
     "@mediapipe/camera_utils": "^0.1.1606863050",
     "@mediapipe/control_utils": "^0.1.1606863011",
     "@mediapipe/hands": "^0.1.1614621970",
-    "axios": "^0.21.1"
+    "autoprefixer": "^10.2.5",
+    "axios": "^0.21.1",
+    "postcss": "^8.2.10",
+    "postcss-import": "^14.0.1",
+    "tailwindcss": "^2.1.1"
   },
   "devDependencies": {
+    "clean-webpack-plugin": "^4.0.0-alpha.0",
     "css-loader": "^5.2.0",
+    "css-minimizer-webpack-plugin": "^2.0.0",
     "html-webpack-plugin": "^5.3.1",
+    "mini-css-extract-plugin": "^1.5.0",
+    "postcss-loader": "^5.2.0",
     "style-loader": "^2.0.0",
     "webpack": "^5.28.0",
-    "webpack-cli": "^4.6.0"
+    "webpack-cli": "^4.6.0",
+    "webpack-dev-server": "^3.11.2"
   }
 }

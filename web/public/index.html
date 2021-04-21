@@ -2,25 +2,30 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>online signature verification</title>
 </head>
 
 <body>
-  <div class="container">
-    <video class="input_video"></video>
-    <canvas id="real_canvas" class="output_canvas"></canvas>
-    <canvas id="fake_canvas" class="output_canvas"></canvas>
-    <div class="loading">
-      <div class="spinner"></div>
-      <div class="message">Loading</div>
+  <div class="h-screen w-full bg-gradient-to-bl from-gray-50 to-gray-300 flex flex-col items-center justify-center">
+    <h1 class="text-6xl font-bold font-mono mb-20 select-none">online signature verification demo</h1>
+    <div
+      class="flex flex-col items-center justify-around bg-white w-1/2 h-2/5 rounded-lg shadow-xl font-bold ring-1 ring-gray-300">
+      <div class="flex justify-center items-center w-full">
+        <input id='username_input'
+          class="ml-2 bg-white font-bold text-xl h-14 w-3/5 rounded-md ring-2 ring-gray-500 focus:ring-blue-600 text-black text-center focus:outline-none select-none"
+          type="text" placeholder="please enter your name" />
+      </div>
+      <div class="relative bottom-5 w-full flex justify-evenly">
+        <button id='enrollment_btn'
+          class="px-6 py-2 font-mono font-bold bg-blue-300 ring-2 ring-blue-400 rounded-md shadow-lg focus:outline-none transform hover:scale-105 select-none">enrollment</button>
+        <button id='verification_btn'
+          class="px-6 py-2 font-mono font-bold bg-green-400 ring-2 ring-green-500 text-gray-800 rounded-md shadow-lg focus:outline-none transform hover:scale-105 select-none">verification</button>
+      </div>
     </div>
-    <button id="finish_btn" class="btn">Finish</button>
-    <button id="clear_btn" class="btn">Clear</button>
   </div>
-  <div class="control-panel"></div>
 </body>
 
 </html>

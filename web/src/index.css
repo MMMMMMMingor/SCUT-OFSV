@@ -1,126 +1,35 @@
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-body {
-  bottom: 0;
-  font-family: "Titillium Web", sans-serif;
-  color: white;
-  left: 0;
-  padding: 0;
-  margin: 0;
-  position: absolute;
-  right: 0;
-  top: 0;
-  transform-origin: 0px 0px;
-  overflow: hidden;
-}
-
-.container {
-  position: absolute;
-  background-image: radial-gradient( circle farthest-corner at 12.3% 19.3%,  rgba(85,88,218,1) 0%, rgba(95,209,249,1) 100.2% );
-  height: 100%;
-  width: 100%;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 .input_video {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: -2;
+  @apply absolute w-full h-full z-10;
   transform: scale(-1, 1);
-  object-fit:unset;
+  object-fit: unset;
 }
 
 .output_canvas {
-  position: absolute;
-  width: 100vw;
-  height: 100vh;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: -1;
   transform: scale(-1, 1);
-}
-
-.control-panel {
-  position: absolute;
-  left: 10px;
-  top: 10px;
+  @apply absolute w-full h-full z-20;
 }
 
 .loading {
-  display: flex;
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  align-items: center;
+  @apply flex w-full h-full absolute items-center justify-center z-30;
   backface-visibility: hidden;
-  justify-content: center;
   opacity: 1;
   transition: opacity 1s;
 }
 
-.loading .message {
-  font-size: 1rem;
-}
-
 .loading .spinner {
-  position: absolute;
-  width: 10vmax;
-  height: 10vmax;
-  animation: spin 1s linear infinite;
-  border: 32px solid #bebebe;
-  border-top: 32px solid #3498db;
-  border-radius: 50%;
+  @apply absolute w-20 h-20 rounded-full animate-spin;
+  border: solid 8px white;
+  border-top: solid 8px black;
 }
 
 .loaded .loading {
-  opacity: 0;
-}
-
-.loaded .container{
-  z-index: -3;
+  display: none;
 }
 
 .btn {
-  position: fixed;
-  width: 10vw;
-  height: 10vh;
-  border-radius: 20px;
-  font-size: 1rem;
-  color: #ffffff;
-  outline: none;
-  text-align: center;
-  z-index: 3;
-}
-
-#finish_btn{
-  background-color: rgb(57, 167, 57);
-  font-size: 2rem;
-  right: 16vw;
-  bottom: 3vh;
-  border: 0;
-  opacity: 0.8;
-}
-
-#clear_btn {
-  background-color: rgb(212, 62, 62);
-  font-size: 2rem;
-  right: 3vw;
-  bottom: 3vh;
-  border: 0;
-  opacity: 0.8;
+  @apply fixed bottom-3 w-20 h-10 rounded-lg z-20 text-base shadow-xl outline-none;
 }

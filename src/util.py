@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import algo.core.dtw as dtw
-
+from mpl_toolkits.mplot3d import Axes3D
 
 OKGREEN = '\033[92m'
 ENDC = '\033[0m'
@@ -44,6 +44,78 @@ def plot_signatures(read_fun, user_no: int, sig_num: int, inverse_axis=False):
     plt.show()
 
 
+def scatter_signatures(read_fun, user_no: int, sig_num: int, inverse_axis=False):
+    """
+    example:
+            plot_signatures(read_MMSIG, 1, 40)
+    """
+    fig, ax_arr = plt.subplots(4, 10, figsize=(17, 3.4))
+
+    for sig in range(1, sig_num + 1):
+        data = read_fun(user_no, sig)
+
+        data_x, data_y = data["x"], data["y"]
+
+        ax = ax_arr[int((sig - 1) / 10), int(sig % 10) - 1]
+        ax.get_xaxis().set_visible(False)
+        ax.get_yaxis().set_visible(False)
+        ax.scatter(data_x, data_y)
+
+        if inverse_axis == True:
+            ax.invert_xaxis()
+            ax.invert_yaxis()
+
+    plt.show()
+
+
+def plot_signature_3D(data: pd.DataFrame):
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    data_x, data_y, data_z = data["x"], data["y"], data["z"]
+
+    ax.set_xlabel("x index")
+    ax.set_ylabel("y index")
+    ax.set_zlabel("z index")
+    ax.set_title("3D signature")
+
+    ax.plot(data_x, data_y, data_z)
+
+    plt.show()
+
+
+def plot_signatures_3D(read_fun, user_no: int, sig_num: int):
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+
+    for sig in range(1, sig_num + 1):
+        data = read_fun(user_no, sig)
+        data_x, data_y, data_z = data["x"], data["y"], data["z"]
+
+        ax.set_xlabel("x index")
+        ax.set_ylabel("y index")
+        ax.set_zlabel("z index")
+        ax.set_title("3D signature")
+
+        ax.plot(data_x, data_y, data_z)
+
+    plt.show()
+
+
+def scatter_signature_3D(data: pd.DataFrame):
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    data_x, data_y, data_z = data["x"], data["y"], data["z"]
+
+    ax.set_xlabel("x index")
+    ax.set_ylabel("y index")
+    ax.set_zlabel("z index")
+    ax.set_title("3D signature")
+
+    ax.scatter(data_x, data_y, data_z)
+
+    plt.show()
+
+
 def plot_signatures_features(read_fun, user_no, sig_num):
     sig = read_fun(user_no, sig_num)
 
@@ -78,7 +150,7 @@ def heatmap_DTW(read_fun, user_no: int, sig_num: int, verbose=False):
 
     dist_mesh = np.zeros((sig_num, sig_num))
 
-    with util.my_timer("pcolormesh_DTW..."):
+    with my_timer("pcolormesh_DTW..."):
         for sig in range(sig_num):
 
             for other_sig in range(sig + 1, sig_num):
