@@ -31,5 +31,18 @@
 }
 
 .btn {
-  @apply fixed bottom-3 w-20 h-10 rounded-lg z-20 text-base shadow-xl outline-none;
+  @apply fixed bottom-3 w-20 h-10 rounded-lg z-20 text-base shadow-xl outline-none transform hover:scale-105;
+}
+
+@keyframe pan {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0%);
+  }
+}
+
+.pan {
+  animation: pan 0.7s cubic-bezier(0.1, 0.87, 0.78, 1.35) 1;
 }

@@ -9,7 +9,7 @@
 </head>
 
 <body class="font-serif text-white">
-  <div class="absolute min-h-screen w-full bg-gradient-to-r from-gray-200 to-gray-800">
+  <div class="absolute min-h-screen w-full bg-gradient-to-r from-gray-200 to-gray-400">
     <video class="input_video"></video>
     <canvas id="real_canvas" class="output_canvas"></canvas>
     <canvas id="fake_canvas" class="output_canvas"></canvas>
@@ -17,10 +17,17 @@
       <div class="spinner"></div>
       <div class="text-sm">Loading</div>
     </div>
-    <button id="finish_btn" class="btn bg-green-600 right-28">Finish</button>
+    <button id="finish_btn" class="btn bg-green-600 right-28">Next</button>
     <button id="clear_btn" class="btn bg-white text-black right-3">Clear</button>
   </div>
   <div id="control_panel"></div>
+  <div id="signatures_count" class="absolute text-black font-bold font-mono right-5 top-5 z-40 text-7xl">0/5</div>
+  <div id="signature_invalid"
+    class="pan hidden absolute text-black w-full text-center font-bold font-mono top-12 z-40 text-xl">
+    <span class="bg-yellow-600 text-black rounded-lg px-3 py-2">
+      signature too short!
+    </span>
+  </div>
 </body>
 
 </html>

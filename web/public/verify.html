@@ -1,12 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>online signature verification</title>
 </head>
-<body>
-    
+
+<body class="font-serif text-white">
+    <div class="absolute min-h-screen w-full bg-gradient-to-r from-gray-200 to-gray-400">
+        <video class="input_video"></video>
+        <canvas id="real_canvas" class="output_canvas"></canvas>
+        <canvas id="fake_canvas" class="output_canvas"></canvas>
+        <div class="loading">
+            <div class="spinner"></div>
+            <div class="text-sm">Loading</div>
+        </div>
+        <button id="finish_btn" class="btn bg-green-600 right-28">Finish</button>
+        <button id="clear_btn" class="btn bg-white text-black right-3">Clear</button>
+    </div>
+    <div id="control_panel"></div>
+    <div id="signatures_count" class="absolute text-black font-bold font-mono right-5 top-5 z-40 text-7xl">0/1</div>
+    <div id="verify_fail"
+        class="pan hidden absolute w-full text-center font-bold font-mono top-12 z-40 text-xl">
+        <span class="bg-red-700 text-white rounded-lg px-3 py-2">
+            signature incorrect!
+        </span>
+    </div>
+    <div id="verify_success"
+        class="pan hidden absolute w-full text-center font-bold font-mono top-12 z-40 text-xl">
+        <span class="bg-green-600 text-white rounded-lg px-3 py-2">
+            signature correct
+        </span>
+    </div>
+    <div id="signature_invalid"
+        class="pan hidden absolute w-full text-center font-bold font-mono top-12 z-40 text-xl">
+        <span class="bg-yellow-600 text-white rounded-lg px-3 py-2">
+            signature too short!
+        </span>
+    </div>
 </body>
+
 </html>

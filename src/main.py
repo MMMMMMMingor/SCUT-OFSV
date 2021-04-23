@@ -25,9 +25,7 @@ if __name__ == "__main__":
     # util.plot_signature_3D(data)
     # util.scatter_signature_3D(data)
 
-    util.plot_signatures_3D(read_my_sig, 1, 5)
-
-    exit(8)
+    # util.plot_signatures_3D(read_my_sig, 1, 5)
 
     users_num = 40
     training = 5

@@ -4,13 +4,14 @@ import { Hands } from "@mediapipe/hands/hands";
 import { closeEnough, drawLandmarks, drawPoints } from "./draw";
 import "@mediapipe/control_utils/control_utils.css"
 import "./index.css"
+import axios from "axios";
 
 navigator.getUserMedia = navigator.getUserMedia ||
     navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 
 const params = new URLSearchParams(window.location.search);
 const username = params.get("username");
-if (!username){
+if (!username) {
     window.location = '/';
 }
 
@@ -20,8 +21,12 @@ const fakeCanvasElement = document.getElementById("fake_canvas");
 const finishBtn = document.getElementById("finish_btn");
 const clearBtn = document.getElementById("clear_btn");
 const controlsElement = document.getElementById("control_panel");
+const verifyFail = document.getElementById('verify_fail');
+const verifySuccess = document.getElementById('verify_success');
+const signatureInvalid = document.getElementById('signature_invalid');
 const canvasCtx = canvasElement.getContext("2d");
 const fakeCanvasCtx = fakeCanvasElement.getContext("2d");
+let has_loaded = false;
 
 canvasCtx.strokeStyle = "#00ff00";
 canvasCtx.lineWidth = 3;
@@ -42,16 +47,50 @@ document.addEventListener("keydown", (event) => {
     }
 });
 
-finishBtn.addEventListener("click", () => {
-    let signature_data = data.filter((p) => { return p !== null });
-    signature_data = signature_data.map((p) => { return { x: p.x, y: p.y, z: p.z } });
-    let new_signature_data = {x: [], y:[], z:[]};
-    for(let p of signature_data){
-        new_signature_data.x.push(p.x);
-        new_signature_data.y.push(p.y);
-        new_signature_data.z.push(p.z);
+finishBtn.addEventListener("click", async (e) => {
+    let signature_data = data.filter((p) => { return p !== null }).map((p) => { return { x: p.x, y: p.y, z: p.z } });
+    let signature = { x: [], y: [], z: [] };
+    for (let p of signature_data) {
+        signature.x.push(p.x);
+        signature.y.push(p.y);
+        signature.z.push(p.z);
     }
-    console.log(new_signature_data);
+
+    if (signature_data.length <= 10) {
+        signatureInvalid.classList.toggle('hidden');
+
+        setTimeout(() => {
+            signatureInvalid.classList.toggle('hidden');
+        }, 2500);
+
+        return;
+    }
+
+    data = [];
+    canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+
+    document.body.classList.remove("loaded");
+    let res = await axios.post('/api/verification/eb_dba', {
+        username: username,
+        signature: signature
+    });
+    document.body.classList.add("loaded");
+
+    console.log(res.data);
+
+    if (res.data.true_or_false === 'true') {
+        verifySuccess.classList.toggle('hidden');
+
+        setTimeout(() => {
+            verifySuccess.classList.toggle('hidden');
+        }, 2500);
+    } else {
+        verifyFail.classList.toggle('hidden');
+
+        setTimeout(() => {
+            verifyFail.classList.toggle('hidden');
+        }, 2500);
+    }
 });
 
 clearBtn.addEventListener("click", () => {
@@ -65,7 +104,10 @@ function onResults(results) {
     fpsControl.tick();
 
     // Hide the spinner.
-    document.body.classList.add("loaded");
+    if (!has_loaded) {
+        has_loaded = true;
+        document.body.classList.add("loaded");
+    }
 
     // Draw the overlays.
     canvasCtx.save();
@@ -117,7 +159,7 @@ new ControlPanel(controlsElement, {
     minDetectionConfidence: 0.85,
     minTrackingConfidence: 0.75,
 }).add([
-    new StaticText({ title: "online air signature demo" }),
+    new StaticText({ title: "verification" }),
     fpsControl,
 ]).on((options) => {
     hands.setOptions(options);

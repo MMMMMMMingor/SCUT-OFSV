@@ -12,8 +12,8 @@ module.exports = {
     },
     entry: {
         index: './src/index.js',
-        enroll: './src/enrollment.js',
-        verify: './src/verification.js',
+        enroll: './src/enroll.js',
+        verify: './src/verify.js',
     },
     output: {
         path: path.resolve(__dirname, './dist'),
@@ -67,5 +67,8 @@ module.exports = {
         watchOptions: {
             ignored: /node_modules/, // 略过node_modules目录
         },
+        proxy: {
+            "/api": "http://localhost:5000"
+        }
     },
 };

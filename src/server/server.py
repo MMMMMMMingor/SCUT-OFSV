@@ -1,5 +1,6 @@
 import sys
 from flask import Flask, request, current_app
+from markupsafe import escape
 import crud
 import numpy as np
 
@@ -9,38 +10,50 @@ import algo.core.template as tpl
 import feat_ext
 import util
 
+
 app = Flask(__name__)
 
-@app.route('/enrollment', methods=["POST"])
+@app.route('/api/user/<username>', methods=["GET"])
+def user_exit(username):
+    try:
+        user = crud.get_user_id_by_name(escape(username))
+    except(Exception):
+        return {'exist': 'false'}
+    
+    return {'exist': 'true'}
+
+
+@app.route('/api/enrollment', methods=["POST"])
 def enrollment():
-    with util.my_timer('enrollment'):
-        username = request.json['username']
-        enrollment_signatures = []
-        for sig in request.json["signatures"]:
-            enrollment_signatures.append(feat_ext.read_dict(sig).to_numpy())
+    try:
+        with util.my_timer('enrollment'):
+            username = request.json['username']
+            enrollment_signatures = []
+            for sig in request.json["signatures"]:
+                enrollment_signatures.append(feat_ext.read_dict(sig).to_numpy())
 
-        new_user = crud.add_user(username)
+            new_user = crud.add_user(username)
 
-        with util.my_timer('cal single'):
-            single_min_tpl = tpl.get_single_min_tpl(enrollment_signatures, 1)
+            with util.my_timer('cal single'):
+                single_min_tpl = tpl.get_single_min_tpl(enrollment_signatures, 1)
 
-        with util.my_timer('cal ls-dba'):
-            eb_dba_tpl, ls = tpl.get_ls_dba_tpl(enrollment_signatures, 5, 1)
+            with util.my_timer('cal ls-dba'):
+                eb_dba_tpl, ls = tpl.get_ls_dba_tpl(enrollment_signatures, 5, 1)
 
-        with util.my_timer('cal_enroll_threshold'):
-            t1, t2, t3, t4 = crud.cal_enroll_threshold(single_min_tpl, eb_dba_tpl, ls, enrollment_signatures)
+            with util.my_timer('cal_enroll_threshold'):
+                t1, t2, t3, t4 = crud.cal_enroll_threshold(single_min_tpl, eb_dba_tpl, ls, enrollment_signatures)
 
-        crud.add_single_min_tpl(new_user.id, single_min_tpl, t1)
-        crud.add_multi_mean_tpl(new_user.id, enrollment_signatures, t2)
-        crud.add_eb_dba_tpl(new_user.id, eb_dba_tpl, t3)
-        crud.add_ls_dba_tpl(new_user.id, eb_dba_tpl, ls, t4)
+            crud.add_single_min_tpl(new_user.id, single_min_tpl, t1)
+            crud.add_multi_mean_tpl(new_user.id, enrollment_signatures, t2)
+            crud.add_eb_dba_tpl(new_user.id, eb_dba_tpl, t3)
+            crud.add_ls_dba_tpl(new_user.id, eb_dba_tpl, ls, t4)
 
-        return {
-            "msg": "success"
-        }
+            return {"msg": "success"}
+    except:
+        return {'msg', 'false'}
 
 
-@app.route('/verification/single_min', methods=["GET"])
+@app.route('/api/verification/single_min', methods=["POST"])
 def verification_single_min():
     with util.my_timer('single_min verification'):
         username = request.json['username']
@@ -59,7 +72,7 @@ def verification_single_min():
         }
 
 
-@app.route('/verification/multi_mean', methods=["GET"])
+@app.route('/api/verification/multi_mean', methods=["POST"])
 def verification_multi_mean():
     with util.my_timer('multi_mean verification'):
         username = request.json['username']
@@ -78,7 +91,7 @@ def verification_multi_mean():
         }
 
 
-@app.route('/verification/eb_dba', methods=["GET"])
+@app.route('/api/verification/eb_dba', methods=["POST"])
 def verification_eb_dba():
     with util.my_timer('eb_dba verification'):
         username = request.json['username']
@@ -97,7 +110,7 @@ def verification_eb_dba():
         }
 
 
-@app.route('/verification/ls_dba', methods=["GET"])
+@app.route('/api/verification/ls_dba', methods=["POST"])
 def verification_ls_dba():
     with util.my_timer('ls_dba verification'):
         username = request.json['username']
@@ -118,3 +131,5 @@ def verification_ls_dba():
 
 if __name__ == "__main__":
     app.run()
+    # from waitress import serve
+    # serve(app, host="0.0.0.0", port=5000) 
