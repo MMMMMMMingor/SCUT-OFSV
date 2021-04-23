@@ -33,7 +33,7 @@ enrollmentBtn.addEventListener("click", async () => {
 verificationBtn.addEventListener("click", async () => {
     let name = usernameInput.value.trim();
     if (name === "") {
-        alert("input can not be empty");
+        alert("用户名不能为空");
         return;
     }
 

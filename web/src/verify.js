@@ -84,6 +84,8 @@ finishBtn.addEventListener("click", async (e) => {
         setTimeout(() => {
             verifySuccess.classList.toggle('hidden');
         }, 2500);
+
+        window.location = `/api/result/${res.data.res_id}`;
     } else {
         verifyFail.classList.toggle('hidden');
 
@@ -136,7 +138,8 @@ function onResults(results) {
 
 const hands = new Hands({
     locateFile: (file) => {
-        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.1/${file}`;
+        // return `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.1/${file}`;
+        return `https://cdn.firego.cn/model/${file}`;
     },
 });
 hands.onResults(onResults);

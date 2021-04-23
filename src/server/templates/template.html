@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>login success</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-items: center;
+            min-height: 100vh;
+        }
+
+        .main {
+            position: relative;
+            height: 75vh;
+            width: 40vw;
+            top: 2.5rem;
+        }
+
+        .background {
+            position: absolute;
+            background-image: radial-gradient(rgba(52, 211, 153, 1), rgba(52, 211, 153, 1));
+            transform: rotate(-5deg);
+            border-radius: 1rem;
+            height: 100%;
+            width: 100%;
+            z-index: -1;
+        }
+
+        .background2 {
+            position: absolute;
+            background-image: radial-gradient(rgba(4, 211, 238, 1), rgba(34, 211, 238, 1));
+            transform: rotate(-10deg);
+            border-radius: 1rem;
+            height: 100%;
+            width: 100%;
+            z-index: -2;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border-radius: 1rem;
+            height: 100%;
+            width: 100%;
+            background-color: white;
+            border: gray 1px solid;
+        }
+
+        .container h1 {
+            user-select: none;
+            font-size: 4rem;
+            font-weight: 400;
+            color: black;
+        }
+
+
+        .container div {
+            user-select: none;
+            font-size: 1.8rem;
+            font-weight: 400;
+            color: black;
+        }
+
+        .result {
+            width: 80%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .footer {
+            width: 100%;
+            position: absolute;
+            bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        a {
+            font-size: 1.5rem;
+            border-radius: 5px;
+        }
+
+        a:hover {
+            font-size: 1.6rem;
+        }
+
+        .yellow-highlight {
+            text-shadow:
+                -3px 0px 3px yellow,
+                3px 0px 3px yellow,
+                6px 0px 6px yellow,
+                -6px 0px 6px yellow;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            body {
+                color: white;
+                background-color: black;
+            }
+
+            .container {
+                border: none;
+            }
+        }
+
+        @media screen and (max-width: 640px) {
+            html {
+                font-size: 10px;
+            }
+
+            .main {
+                width: 70vw;
+            }
+        }
+
+        @media screen and (min-width: 640px) and (max-width: 1024px) {
+            html {
+                font-size: 14px;
+            }
+
+            .main {
+                width: 55vw;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main">
+        <div class="background"></div>
+        <div class="background2"></div>
+        <div class="container">
+            <h1>Login Success!</h1>
+            <div>
+                <span>Welcome</span>
+                <span class="yellow-highlight">{{user}}</span>
+            </div>
+            <br>
+            <div class="result">
+                <div>
+                    <span>verify-algo:</span>
+                    <span class="yellow-highlight">{{algo}}</span>
+                </div>
+                <div>
+                    <span>threshold:</span>
+                    <span class="yellow-highlight">{{threshold}}</span>
+                </div>
+                <div>
+                    <span>DTW result:</span>
+                    <span class="yellow-highlight">{{result}}</span>
+                </div>
+                <div>
+                    <span>cost time(seconds):</span>
+                    <span class="yellow-highlight">{{cost}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <a href="https://osv.firego.cn">online signature verification system</a>
+    </div>
+</body>
+
+</html>

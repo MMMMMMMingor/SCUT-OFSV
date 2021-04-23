@@ -1,7 +1,8 @@
 import sys
-from model import User, SingleMin, MultiMean, EB_DBA, LS_DBA
+from model import User, SingleMin, MultiMean, EB_DBA, LS_DBA, Result
 import pickle
 import numpy as np
+import uuid
 
 sys.path.append("../")
 import algo.core.dtw as dtw
@@ -70,6 +71,17 @@ def add_ls_dba_tpl(user_id: int, eb_dba_tpl: np.ndarray, ls: np.ndarray, thresho
 def get_ls_dba_tpl(user_id: int) -> (np.ndarray, np.ndarray, float):
     ls_dba = LS_DBA.select().where(LS_DBA.user_id == user_id).get()
     return pickle.loads(ls_dba.eb_dba_tpl), pickle.loads(ls_dba.ls), ls_dba.threshold
+
+
+def add_result(user: str, algo: str, threshold: float, result: float, cost: float):
+    uid = uuid.uuid1()
+    new_one = Result.create(id=uid,user=user, algo=algo, threshold=threshold, result=result, cost=cost)
+    new_one.id = uid
+    return new_one
+
+
+def get_result(res_id: str) -> Result:
+    return Result.select().where(Result.id == res_id).get()
 
 
 def cal_enroll_threshold(single_min_tpl: np.ndarray, eb_dba_tpl: np.ndarray, ls: np.ndarray, enrollment_signatures: list) -> (float, float, float, float):

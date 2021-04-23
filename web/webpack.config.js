@@ -68,7 +68,10 @@ module.exports = {
             ignored: /node_modules/, // 略过node_modules目录
         },
         proxy: {
-            "/api": "http://localhost:5000"
+            "/api": {
+                target: "http://localhost:5000",
+                changeOrigin: true,
+            }
         }
     },
 };

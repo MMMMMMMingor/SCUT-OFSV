@@ -1,5 +1,6 @@
 import sys
-from flask import Flask, request, current_app
+import time
+from flask import Flask, request, current_app, render_template
 from markupsafe import escape
 import crud
 import numpy as np
@@ -55,78 +56,107 @@ def enrollment():
 
 @app.route('/api/verification/single_min', methods=["POST"])
 def verification_single_min():
-    with util.my_timer('single_min verification'):
-        username = request.json['username']
-        signature = feat_ext.read_dict(request.json["signature"]).to_numpy()
+    start = time.time()
+    username = request.json['username']
+    signature = feat_ext.read_dict(request.json["signature"]).to_numpy()
 
-        user_id = crud.get_user_id_by_name(username)
-        single_min_tpl, threshold = crud.get_single_min_tpl(user_id)
-        res = dtw.DTW(signature, single_min_tpl)
+    user_id = crud.get_user_id_by_name(username)
+    single_min_tpl, threshold = crud.get_single_min_tpl(user_id)
+    res = dtw.DTW(signature, single_min_tpl)
 
-        current_app.logger.debug(f'DTW res: {res}')
+    current_app.logger.debug(f'DTW res: {res}')
 
-        return {
-            'res': res,
-            'threshold': threshold,
-            'true_or_false': 'true' if res < threshold else 'false'
-        }
+    if res < threshold:
+        result = crud.add_result(
+            user= username, 
+            algo= 'single-min-template',
+            threshold= round(threshold, 3),
+            result= round(res, 3),
+            cost= round(time.time() - start, 5),
+        )
+        return {'res_id': result.id,'true_or_false': 'true'}
+
+    return {'res': res, 'thres': threshold, 'true_or_false': 'false'}
 
 
 @app.route('/api/verification/multi_mean', methods=["POST"])
 def verification_multi_mean():
-    with util.my_timer('multi_mean verification'):
-        username = request.json['username']
-        signature = feat_ext.read_dict(request.json["signature"]).to_numpy()
+    start = time.time()
+    username = request.json['username']
+    signature = feat_ext.read_dict(request.json["signature"]).to_numpy()
 
-        user_id = crud.get_user_id_by_name(username)
-        signatures, threshold = crud.get_multi_tpl(user_id)
-        res = tpl.get_multi_mean_dtw(signatures, signature)
+    user_id = crud.get_user_id_by_name(username)
+    signatures, threshold = crud.get_multi_tpl(user_id)
+    res = tpl.get_multi_mean_dtw(signatures, signature)
 
-        current_app.logger.debug(f'DTW res: {res}')
+    current_app.logger.debug(f'DTW res: {res}')
 
-        return {
-            'res': res,
-            'threshold': threshold,
-            'true_or_false': 'true' if res < threshold else 'false'
-        }
+    if res < threshold:
+        result = crud.add_result(
+            user= username, 
+            algo= 'multi-mean-template',
+            threshold= round(threshold, 3),
+            result= round(res, 3),
+            cost= round(time.time() - start, 5),
+        )
+        return {'res_id': result.id,'true_or_false': 'true'}
+
+    return {'res': res, 'thres': threshold, 'true_or_false': 'false'}
 
 
 @app.route('/api/verification/eb_dba', methods=["POST"])
 def verification_eb_dba():
-    with util.my_timer('eb_dba verification'):
-        username = request.json['username']
-        signature = feat_ext.read_dict(request.json["signature"]).to_numpy()
+    start = time.time()
+    username = request.json['username']
+    signature = feat_ext.read_dict(request.json["signature"]).to_numpy()
 
-        user_id = crud.get_user_id_by_name(username)
-        eb_dba_tpl, threshold = crud.get_eb_dba_tpl(user_id)
-        res = dtw.DTW(signature, eb_dba_tpl)
+    user_id = crud.get_user_id_by_name(username)
+    eb_dba_tpl, threshold = crud.get_eb_dba_tpl(user_id)
+    res = dtw.DTW(signature, eb_dba_tpl)
 
-        current_app.logger.debug(f'DTW res: {res}')
+    current_app.logger.info(f'DTW res: {res}')
 
-        return {
-            'res': res,
-            'threshold': threshold,
-            'true_or_false': 'true' if res < threshold else 'false'
-        }
+    if res < threshold:
+        result = crud.add_result(
+            user= username, 
+            algo= 'eb-dba-template',
+            threshold= round(threshold, 3),
+            result= round(res, 3),
+            cost= round(time.time() - start, 5),
+        )
+        return {'res_id': result.id,'true_or_false': 'true'}
+
+    return {'res': res, 'thres': threshold, 'true_or_false': 'false'}
 
 
 @app.route('/api/verification/ls_dba', methods=["POST"])
 def verification_ls_dba():
-    with util.my_timer('ls_dba verification'):
-        username = request.json['username']
-        signature = feat_ext.read_dict(request.json["signature"]).to_numpy()
+    start = time.time()
+    username = request.json['username']
+    signature = feat_ext.read_dict(request.json["signature"]).to_numpy()
 
-        user_id = crud.get_user_id_by_name(username)
-        eb_dba_tpl, ls, threshold = crud.get_ls_dba_tpl(user_id)
-        res = dtw.DTW(signature, eb_dba_tpl, local_stability=ls)
+    user_id = crud.get_user_id_by_name(username)
+    eb_dba_tpl, ls, threshold = crud.get_ls_dba_tpl(user_id)
+    res = dtw.DTW(signature, eb_dba_tpl, local_stability=ls)
 
-        current_app.logger.debug(f'DTW res: {res}')
+    current_app.logger.debug(f'DTW res: {res}')
 
-        return {
-            'res': res,
-            'threshold': threshold,
-            'true_or_false': 'true' if res < threshold else 'false'
-        }
+    if res < threshold:
+        result = crud.add_result(
+            user= username, 
+            algo= 'ls-dba-template',
+            threshold= round(threshold, 3),
+            result= round(res, 3),
+            cost= round(time.time() - start, 5),
+        )
+        return {'res_id': result.id,'true_or_false': 'true'}
+
+    return {'res': res, 'thres': threshold, 'true_or_false': 'false'}
+
+@app.route('/api/result/<res_id>', methods=["GET"])
+def get_result(res_id):
+    res = crud.get_result(res_id)
+    return render_template('template.html', user=res.user, algo=res.algo, threshold=res.threshold, result=res.result, cost=res.cost)
 
 
 if __name__ == "__main__":

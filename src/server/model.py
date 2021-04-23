@@ -1,4 +1,4 @@
-from peewee import SqliteDatabase, Model, AutoField, CharField, FloatField, BlobField, ForeignKeyField
+from peewee import SqliteDatabase, Model, AutoField, CharField, FloatField, BlobField, ForeignKeyField, UUIDField
 
 db = SqliteDatabase('osv.sqlite')
 
@@ -43,7 +43,18 @@ class LS_DBA(Model):
     class Meta:
         database = db
 
+class Result(Model):
+    id = UUIDField()
+    user = CharField()
+    algo = CharField()
+    threshold = FloatField()
+    result = FloatField()
+    cost = FloatField()
+
+    class Meta:
+        database = db
+
 
 if __name__ == '__main__':
     db.connect()
-    db.create_tables([User, SingleMin, MultiMean, EB_DBA, LS_DBA])
+    db.create_tables([User, SingleMin, MultiMean, EB_DBA, LS_DBA, Result])

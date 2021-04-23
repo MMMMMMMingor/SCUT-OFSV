@@ -3,14 +3,16 @@
 @tailwind utilities;
 
 .input_video {
-  @apply absolute w-full h-full z-10;
+  @apply absolute w-full h-full;
   transform: scale(-1, 1);
   object-fit: unset;
+  z-index: -2;
 }
 
 .output_canvas {
+  @apply absolute w-full h-full;
   transform: scale(-1, 1);
-  @apply absolute w-full h-full z-20;
+  z-index: -1;
 }
 
 .loading {
@@ -28,6 +30,14 @@
 
 .loaded .loading {
   display: none;
+}
+
+.loaded .input_video {
+  z-index:1;
+}
+
+.loaded .output_canvas {
+  z-index:2;
 }
 
 .btn {
