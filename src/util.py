@@ -4,6 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import algo.core.dtw as dtw
 from mpl_toolkits.mplot3d import Axes3D
+import algo.core.template as tpl
 
 OKGREEN = '\033[92m'
 ENDC = '\033[0m'
@@ -170,3 +171,40 @@ def heatmap_DTW(read_fun, user_no: int, sig_num: int, verbose=False):
     plt.title("DTW heatmap between signatures")
     plt.imshow(dist_mesh)
     plt.show()
+
+
+def mean_without_min_max(thresholds: list) -> float:
+    sum_without_min_max = sum(thresholds) - max(thresholds) - min(thresholds)
+
+    return sum_without_min_max / len(thresholds) - 2
+
+def get_single_min_threshold(single_min_tpl: np.ndarray, enrollment_signatures: list) -> float:
+    single_min_thresholds = []
+    for sig in enrollment_signatures:
+        res = dtw.DTW(single_min_tpl, sig)
+        single_min_thresholds.append(res)
+    return mean_without_min_max(single_min_thresholds)
+
+
+def get_multi_mean_threshold(enrollment_signatures: list) -> float:
+    multi_mean_thresholds = []
+    for i, sig in enumerate(enrollment_signatures):
+        res = tpl.get_multi_mean_dtw(enrollment_signatures[0:i] + enrollment_signatures[i: -1], sig)
+        multi_mean_thresholds.append(res)
+    return mean_without_min_max(multi_mean_thresholds)
+
+
+def get_eb_dba_tpl_threshold(eb_dba_tpl: np.ndarray, enrollment_signatures: list) -> float:
+    eb_dba_thresholds = []
+    for sig in enrollment_signatures:
+        res = dtw.DTW(sig, eb_dba_tpl)
+        eb_dba_thresholds.append(res)
+    return mean_without_min_max(eb_dba_thresholds)
+
+
+def get_ls_dba_tpl_threshold(eb_dba_tpl: np.ndarray, ls: np.ndarray, enrollment_signatures: list) -> float:
+    ls_dba_thresholds = []
+    for sig in enrollment_signatures:
+        res = dtw.DTW(sig, eb_dba_tpl, local_stability=ls)
+        ls_dba_thresholds.append(res)
+    return mean_without_min_max(ls_dba_thresholds)

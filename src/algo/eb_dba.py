@@ -43,9 +43,16 @@ def EB_DBA_based_classify(read_fun, users_num: int, training: int, genuine: int,
                 DTW_test[u, sig] = dtw.DTW(
                     users_data[u][sig], eb_dba_tpls[u], penalty=penalty)
 
+    with util.my_timer("calucate threshold..."):
+        threshold_array = []
+        for u in range(users_num):
+            threshold_array.append(util.get_eb_dba_tpl_threshold(eb_dba_tpls[u], users_data[u]))
+
     # calculate FAR, FRR, EER
     with util.my_timer("calculating EER... "):
         ERR = roc.user_dependent_ROC(users_num, training,
                                      genuine, forged, DTW_test)
+        FAR, FRR = roc.user_thres_dependent_ROC(users_num, training,
+                                                genuine, forged, DTW_test, threshold_array)
         ERR = roc.user_independent_ROC(users_num, training,
                                        genuine, forged, DTW_test, "EB-DBA based single template")

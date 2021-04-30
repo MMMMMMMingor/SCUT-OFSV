@@ -1,6 +1,7 @@
 import numpy as np
 import scipy.stats as stats
 import pandas as pd
+from scipy.ndimage import gaussian_filter
 
 
 def __normolization_centroid(a: pd.Series, index: list):
@@ -41,6 +42,19 @@ def __derivation(seq) -> np.ndarray:
     d_seq[N - 1] = (3*seq[N-1] - seq[N-2] - 2*seq[N-3]) / 5
 
     return d_seq
+
+
+def __guassion_filter(data: pd.DataFrame, sigma=1):
+    x = gaussian_filter(data["x"], sigma=sigma)
+    y = gaussian_filter(data["y"], sigma=sigma)
+    return pd.DataFrame({'x': x, 'y': y})
+
+
+def __guassion_filter_3D(data: pd.DataFrame, sigma=1):
+    x = gaussian_filter(data["x"], sigma=sigma)
+    y = gaussian_filter(data["y"], sigma=sigma)
+    z = gaussian_filter(data["z"], sigma=sigma)
+    return pd.DataFrame({'x': x, 'y': y, 'z': z})
 
 
 def feature_extraction(data: pd.DataFrame) -> pd.DataFrame:
@@ -133,6 +147,7 @@ def read_MMSIG(user_no: int, index: int) -> pd.DataFrame:
                          header=None, names=["x", "y"])
 
     # feature extraction & data preprocess
+    # data = __guassion_filter(data, sigma=1)
     data = feature_extraction(data)
 
     return data
@@ -143,12 +158,14 @@ def read_SVC2004(user_no: int, index: int) -> pd.DataFrame:
 
     data = pd.read_table(filename, sep=" ", skiprows=1,
                          dtype="int", header=None, names=["x", "y", "ts", "pen"])
+    data = data.drop(columns=["ts", "pen"])
 
     # feature extraction & data preprocess
+    # data = __guassion_filter(data, sigma=1)
     data = feature_extraction(data)
 
     # return data
-    return data.drop(columns=["ts", "pen"])
+    return data
 
 
 def read_SVC2004_2(user_no: int, index: int) -> pd.DataFrame:
@@ -156,18 +173,22 @@ def read_SVC2004_2(user_no: int, index: int) -> pd.DataFrame:
 
     data = pd.read_table(filename, sep=" ", skiprows=1,
                          dtype="int", header=None, names=["x", "y", "ts", "pen", "Az", "Al", "Pr"])
+    data = data.drop(columns=["ts", "pen", "Az", "Al", "Pr"])
 
     # feature extraction & data preprocess
+    # data = __guassion_filter(data, sigma=1)
     data = feature_extraction(data)
 
     # return data
-    return data.drop(columns=["ts", "pen", "Az", "Al", "Pr"])
+    return data
 
 
 def read_my_sig(user_no: int, index: int):
     filename = f"../data/my-sig/U{user_no}S{index}.json"
     data = pd.read_json(filename, dtype="float64")
 
+    # feature extraction & data preprocess
+    data = __guassion_filter_3D(data, sigma=1)
     data = feature_extraction_3D(data)
     return data
 
@@ -176,6 +197,7 @@ def read_dict(json: dict) -> pd.DataFrame:
     data = pd.DataFrame(json, dtype="float64")
 
     # feature extraction & data preprocess
-    data = feature_extraction(data)
+    data = __guassion_filter_3D(data, sigma=1)
+    data = feature_extraction_3D(data)
 
     return data

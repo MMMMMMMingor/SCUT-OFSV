@@ -25,7 +25,6 @@ def single_tpl_min_based_classify(read_fun, users_num: int, training: int, genui
         for u in range(users_num):
             single_tpl = tpl.get_single_min_tpl(users_data[u][0:training], penalty)
             single_tpls.append(single_tpl)
-    # return
 
     # testing with the minimum signature
     with util.my_timer("testing..."):
@@ -34,9 +33,16 @@ def single_tpl_min_based_classify(read_fun, users_num: int, training: int, genui
             for sig in range(training, sig_sum):
                 DTW_test[u, sig] = dtw.DTW(users_data[u][sig], single_tpls[u])
 
+    with util.my_timer("calucate threshold..."):
+        threshold_array = []
+        for u in range(users_num):
+            threshold_array.append(util.get_single_min_threshold(single_tpls[u], users_data[u]))
+
     # calculate FAR, FRR, EER
     with util.my_timer("calculating EER... "):
         ERR = roc.user_dependent_ROC(users_num, training,
                                      genuine, forged, DTW_test)
+        FAR, FRR = roc.user_thres_dependent_ROC(users_num, training,
+                                                genuine, forged, DTW_test, threshold_array)
         ERR = roc.user_independent_ROC(users_num, training,
-                                       genuine, forged, DTW_test, "min-based single template")
+                                       genuine, forged, DTW_test, "single min based single template")

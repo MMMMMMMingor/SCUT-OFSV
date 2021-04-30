@@ -21,13 +21,13 @@ if __name__ == "__main__":
 
     # util.heatmap_DTW(read_SVC2004_2, 1, 40, True)
 
-    # data = read_my_sig(1, 10)
-    # util.plot_signature_3D(data)
+    data = read_my_sig(1, 1)
+    util.plot_signature_3D(data)
     # util.scatter_signature_3D(data)
 
     # util.plot_signatures_3D(read_my_sig, 1, 5)
 
-    users_num = 40
+    users_num = 10
     training = 5
     genuine = 20
     forged = 20

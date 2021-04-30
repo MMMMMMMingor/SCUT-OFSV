@@ -27,9 +27,16 @@ def mul_tpl_mean_based_classify(read_fun, users_num: int, training: int, genuine
                 mean_dtw = tpl.get_multi_mean_dtw(users_data[u][0:training], users_data[u][sig], penalty)
                 DTW_mean_test[u, sig] = mean_dtw
 
+    with util.my_timer("calucate threshold..."):
+        threshold_array = []
+        for u in range(users_num):
+            threshold_array.append(util.get_multi_mean_threshold(users_data[u]))
+
     # calculate FAR, FRR, EER
     with util.my_timer("calculating EER... "):
         ERR = roc.user_dependent_ROC(users_num, training,
                                  genuine, forged, DTW_mean_test)
+        FAR, FRR = roc.user_thres_dependent_ROC(users_num, training,
+                                                genuine, forged, DTW_mean_test, threshold_array)
         ERR = roc.user_independent_ROC(users_num, training,
                                    genuine, forged, DTW_mean_test, "mean-based multiple template")
