@@ -1,6 +1,7 @@
 import numpy as np
 import algo.core.dtw as dtw
 import matplotlib.pyplot as plt
+# from sklearn.ensemble import GradientBoostingClassifier
 
 
 # min-based single template strategy
@@ -88,7 +89,7 @@ def get_eb_dba_tpl(training_data: list, times: int, penalty=0) -> np.ndarray:
     return eb_dba_tpl
 
 
-# EB-DBA single template stratgy
+# LS-DBA single template stratgy
 def get_ls_dba_tpl(training_data: list, times: int, penalty=0) -> (np.ndarray, np.ndarray):
     train_num = len(training_data)
 

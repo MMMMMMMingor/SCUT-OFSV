@@ -1,6 +1,7 @@
 import numpy as np
 import util
 import roc
+import random
 import algo.core.dtw as dtw
 import algo.core.template as tpl
 
@@ -19,6 +20,12 @@ def mul_tpl_mean_based_classify(read_fun, users_num: int, training: int, genuine
                        for sig in range(sig_sum)]
             users_data.append(sig_arr)
 
+    # shuffle true signatures
+    for u in range(users_num):
+        genuine_sig = users_data[u][:genuine]
+        random.shuffle(genuine_sig)
+        users_data[u] = genuine_sig + users_data[u][genuine:]
+
     # calculate DTW for test
     with util.my_timer("testing... "):
         DTW_mean_test = np.zeros((users_num, sig_sum))
@@ -27,7 +34,7 @@ def mul_tpl_mean_based_classify(read_fun, users_num: int, training: int, genuine
                 mean_dtw = tpl.get_multi_mean_dtw(users_data[u][0:training], users_data[u][sig], penalty)
                 DTW_mean_test[u, sig] = mean_dtw
 
-    with util.my_timer("calucate threshold..."):
+    with util.my_timer("calculate threshold..."):
         threshold_array = []
         for u in range(users_num):
             threshold_array.append(util.get_multi_mean_threshold(users_data[u]))

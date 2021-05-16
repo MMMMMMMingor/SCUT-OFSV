@@ -1,6 +1,7 @@
 import numpy as np
 import util
 import roc
+import random 
 import algo.core.dtw as dtw
 import algo.core.template as tpl
 
@@ -18,6 +19,12 @@ def single_tpl_min_based_classify(read_fun, users_num: int, training: int, genui
             sig_arr = [read_fun(u + 1, sig + 1).to_numpy()
                        for sig in range(sig_sum)]
             users_data.append(sig_arr)
+    
+    # shuffle true signatures
+    for u in range(users_num):
+        genuine_sig = users_data[u][:genuine]
+        random.shuffle(genuine_sig)
+        users_data[u] = genuine_sig + users_data[u][genuine:]
 
     # finding the signature has minimum DTW with others
     with util.my_timer("finding the signature has minimum DTW with others..."):
@@ -33,7 +40,7 @@ def single_tpl_min_based_classify(read_fun, users_num: int, training: int, genui
             for sig in range(training, sig_sum):
                 DTW_test[u, sig] = dtw.DTW(users_data[u][sig], single_tpls[u])
 
-    with util.my_timer("calucate threshold..."):
+    with util.my_timer("calculate threshold..."):
         threshold_array = []
         for u in range(users_num):
             threshold_array.append(util.get_single_min_threshold(single_tpls[u], users_data[u]))

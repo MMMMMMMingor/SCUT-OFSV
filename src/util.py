@@ -141,6 +141,31 @@ def plot_signatures_features(read_fun, user_no, sig_num):
 
     plt.show()
 
+def plot_signature_in_timestamp(data: pd.DataFrame):
+    plt.rcParams["figure.figsize"] = (12,4)
+    start = data['ts'][0]
+    # data['ts'] = data['ts'] - start
+    for ts, x in zip(data['ts'], data['x']):
+        plt.vlines(x=ts, ymin=0, ymax=x)
+
+    plt.scatter(data['ts'], data['x'], c='green')
+    plt.show()
+
+def plot_mean_template_with_train(mean_tpl: np.ndarray, training_sig: list):
+    for sig in training_sig:
+        plt.plot(sig[:, 0], sig[:, 1], "--")
+    plt.plot(mean_tpl[:, 0], mean_tpl[:, 1], "black", linewidth=3)
+    plt.show()
+
+
+def plot_mean_template_with_train_3D(mean_tpl: np.ndarray, training_sig: list):
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    for sig in training_sig:
+        ax.plot(sig[:, 0], sig[:, 1], sig[:, 2], "--")
+    ax.plot(mean_tpl[:, 0], mean_tpl[:, 1], mean_tpl[:, 2], "black", linewidth=3)
+    plt.show()
+
 
 def heatmap_DTW(read_fun, user_no: int, sig_num: int, verbose=False):
     """
@@ -173,17 +198,26 @@ def heatmap_DTW(read_fun, user_no: int, sig_num: int, verbose=False):
     plt.show()
 
 
-def mean_without_min_max(thresholds: list) -> float:
-    sum_without_min_max = sum(thresholds) - max(thresholds) - min(thresholds)
+def mean_without_min_max(distances: list) -> float:
+    sum_without_min_max = sum(distances) - max(distances) - min(distances)
 
-    return sum_without_min_max / len(thresholds) - 2
+    return sum_without_min_max / len(distances) - 2
+
+
+def personal_threshold(distances: list, delta: float = 2.8) -> float:
+    threshold = np.mean(distances) + delta * np.sqrt(np.var(distances)) 
+
+    return threshold
+
 
 def get_single_min_threshold(single_min_tpl: np.ndarray, enrollment_signatures: list) -> float:
     single_min_thresholds = []
     for sig in enrollment_signatures:
         res = dtw.DTW(single_min_tpl, sig)
         single_min_thresholds.append(res)
-    return mean_without_min_max(single_min_thresholds)
+    # return mean_without_min_max(single_min_thresholds)
+    # return max(single_min_thresholds)
+    return personal_threshold(single_min_thresholds, delta=2.8)
 
 
 def get_multi_mean_threshold(enrollment_signatures: list) -> float:
@@ -191,7 +225,9 @@ def get_multi_mean_threshold(enrollment_signatures: list) -> float:
     for i, sig in enumerate(enrollment_signatures):
         res = tpl.get_multi_mean_dtw(enrollment_signatures[0:i] + enrollment_signatures[i: -1], sig)
         multi_mean_thresholds.append(res)
-    return mean_without_min_max(multi_mean_thresholds)
+    # return mean_without_min_max(multi_mean_thresholds)
+    # return max(multi_mean_thresholds)
+    return personal_threshold(multi_mean_thresholds, delta=2.8)
 
 
 def get_eb_dba_tpl_threshold(eb_dba_tpl: np.ndarray, enrollment_signatures: list) -> float:
@@ -199,7 +235,9 @@ def get_eb_dba_tpl_threshold(eb_dba_tpl: np.ndarray, enrollment_signatures: list
     for sig in enrollment_signatures:
         res = dtw.DTW(sig, eb_dba_tpl)
         eb_dba_thresholds.append(res)
-    return mean_without_min_max(eb_dba_thresholds)
+    # return mean_without_min_max(eb_dba_thresholds)
+    # return max(eb_dba_thresholds)
+    return personal_threshold(eb_dba_thresholds, delta=2.8)
 
 
 def get_ls_dba_tpl_threshold(eb_dba_tpl: np.ndarray, ls: np.ndarray, enrollment_signatures: list) -> float:
@@ -207,4 +245,6 @@ def get_ls_dba_tpl_threshold(eb_dba_tpl: np.ndarray, ls: np.ndarray, enrollment_
     for sig in enrollment_signatures:
         res = dtw.DTW(sig, eb_dba_tpl, local_stability=ls)
         ls_dba_thresholds.append(res)
-    return mean_without_min_max(ls_dba_thresholds)
+    # return mean_without_min_max(ls_dba_thresholds)
+    # return max(ls_dba_thresholds)
+    return personal_threshold(ls_dba_thresholds, delta=2.8)

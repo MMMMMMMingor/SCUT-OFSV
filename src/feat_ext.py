@@ -92,8 +92,8 @@ def feature_extraction(data: pd.DataFrame) -> pd.DataFrame:
         {"vel": vel, "angel": angel, "logcr": logcr, "tam": tam})], axis=1)
 
     # data = data.apply(stats.zscore)
-    # data = data.apply(__normolization_centroid, index=['x', 'y'])
-    # data = data.apply(__normolization_min_max, index=['x', 'y'])
+    # data = data.apply(__normolization_centroid, index=data.columns)
+    data = data.apply(__normolization_min_max, index=data.columns)
 
     return data
 
@@ -109,14 +109,16 @@ def feature_extraction_3D(data: pd.DataFrame) -> pd.DataFrame:
 
     vel = np.sqrt(d_x*d_x + d_y*d_y + d_z*d_z)  # velocity
 
+    d_xz = __derivation(np.sqrt(data["x"]**2 + data["z"]**2))
+
     N = len(d_x)
     angel = np.zeros((N))  # angel
     for i in range(N):
-        if d_x[i] != 0:
-            angel[i] = np.arctan(d_y[i] / d_x[i])
-        elif d_x[i] == 0 and d_y[i] > 0:
+        if d_xz[i] != 0:
+            angel[i] = np.arctan(d_y[i] / d_xz[i])
+        elif d_xz[i] == 0 and d_y[i] > 0:
             angel[i] = np.pi / 2
-        elif d_x[i] == 0 and d_y[i] < 0:
+        elif d_xz[i] == 0 and d_y[i] < 0:
             angel[i] = -np.pi / 2
         else:
             angel[i] = 0
@@ -133,6 +135,9 @@ def feature_extraction_3D(data: pd.DataFrame) -> pd.DataFrame:
     data = pd.concat([data, pd.DataFrame(
         {"vel": vel, "angel": angel, "logcr": logcr, "tam": tam})], axis=1)
 
+    # data = data.apply(stats.zscore)
+    # data = data.apply(__normolization_centroid, index=data.columns)
+    data = data.apply(__normolization_min_max, index=data.columns)
 
     return data
 
@@ -147,7 +152,7 @@ def read_MMSIG(user_no: int, index: int) -> pd.DataFrame:
                          header=None, names=["x", "y"])
 
     # feature extraction & data preprocess
-    # data = __guassion_filter(data, sigma=1)
+    data = __guassion_filter(data, sigma=1)
     data = feature_extraction(data)
 
     return data
@@ -161,7 +166,7 @@ def read_SVC2004(user_no: int, index: int) -> pd.DataFrame:
     data = data.drop(columns=["ts", "pen"])
 
     # feature extraction & data preprocess
-    # data = __guassion_filter(data, sigma=1)
+    data = __guassion_filter(data, sigma=1)
     data = feature_extraction(data)
 
     # return data
@@ -176,7 +181,7 @@ def read_SVC2004_2(user_no: int, index: int) -> pd.DataFrame:
     data = data.drop(columns=["ts", "pen", "Az", "Al", "Pr"])
 
     # feature extraction & data preprocess
-    # data = __guassion_filter(data, sigma=1)
+    data = __guassion_filter(data, sigma=1)
     data = feature_extraction(data)
 
     # return data
@@ -188,8 +193,8 @@ def read_my_sig(user_no: int, index: int):
     data = pd.read_json(filename, dtype="float64")
 
     # feature extraction & data preprocess
-    data = __guassion_filter_3D(data, sigma=1)
-    data = feature_extraction_3D(data)
+    # data = __guassion_filter_3D(data, sigma=1)
+    # data = feature_extraction_3D(data)
     return data
 
 

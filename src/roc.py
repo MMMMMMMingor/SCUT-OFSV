@@ -41,8 +41,9 @@ def user_independent_ROC(users_num: int, training: int, genuine: int, forged: in
     plt.legend()
     # plt.show()
 
+    print("user-independent threshold", threshold_array[idx])
     print(
-        f"{util.OKGREEN} user-independent EER: {EER}, threshold: {threshold_array[idx]} {util.ENDC}")
+        f"{util.OKGREEN} user-independent EER: {EER} {util.ENDC}")
     return EER
 
 
@@ -65,6 +66,7 @@ def user_thres_dependent_ROC(users_num: int, training: int, genuine: int, forged
     FAR = FA / forged_count
     FRR = FR / genuine_count
 
+    print("user-thres-dependent threshold", threshold_array)
     print(f"{util.OKGREEN} user-thres-dependent FAR: {FAR}, FRR: {FRR} {util.ENDC}")
     return FAR, FRR
 
@@ -103,10 +105,9 @@ def user_dependent_ROC(users_num: int, training: int, genuine: int, forged: int,
         EER_idx[u] = threshold_array[idxl]
         EER[u] = (FRR[idxr] + FAR[idxl]) / 2
 
-    print("user-dependent threshold", EER_idx)
-
     # calculate mean (EER)
     EER = np.mean(EER)
 
+    print("user-dependent threshold", EER_idx)
     print(f"{util.OKGREEN} user-dependent EER: {EER} {util.ENDC}")
     return EER

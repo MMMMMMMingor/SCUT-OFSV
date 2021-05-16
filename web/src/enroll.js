@@ -49,9 +49,10 @@ document.addEventListener("keydown", (event) => {
 
 finishBtn.addEventListener("click", async (e) => {
     let signature_data = data.filter((p) => { return p !== null });
-    signature_data = signature_data.map((p) => { return { x: p.x, y: p.y, z: p.z } });
-    let new_signature_data = { x: [], y: [], z: [] };
+    signature_data = signature_data.map((p) => { return { ts:p.ts, x: p.x, y: p.y, z: p.z } });
+    let new_signature_data = { ts:[], x: [], y: [], z: [] };
     for (let p of signature_data) {
+        new_signature_data.ts.push(p.ts);
         new_signature_data.x.push(p.x);
         new_signature_data.y.push(p.y);
         new_signature_data.z.push(p.z);
@@ -120,7 +121,7 @@ function onResults(results) {
 
             if (closeEnough(thumb, index_finger, 0.06)) {
                 drawLandmarks(canvasCtx, data[data.length - 1], thumb);
-                data.push(thumb);
+                data.push({ts: Date.now(), ...thumb});
             } else {
                 drawPoints(fakeCanvasCtx, [thumb, index_finger]);
                 if (data[data.length - 1] !== null) {

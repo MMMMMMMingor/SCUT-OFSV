@@ -1,6 +1,7 @@
 import numpy as np
 import util
 import roc
+import random
 import matplotlib.pyplot as plt
 import algo.core.dtw as dtw
 import algo.core.template as tpl
@@ -20,6 +21,12 @@ def LS_DBA_based_classify(read_fun, users_num: int, training: int, genuine: int,
                        for sig in range(sig_sum)]
             users_data.append(sig_arr)
 
+    # shuffle true signatures
+    for u in range(users_num):
+        genuine_sig = users_data[u][:genuine]
+        random.shuffle(genuine_sig)
+        users_data[u] = genuine_sig + users_data[u][genuine:]
+
     # calculate the LS-DBA
     eb_dba_tpls = []
     LS = []
@@ -30,11 +37,8 @@ def LS_DBA_based_classify(read_fun, users_num: int, training: int, genuine: int,
             LS.append(ls)
 
     # for u in range(users_num):
-    #     for sig in range(training):
-    #         plt.plot(users_data[u][sig][:, 0], users_data[u][sig][:, 1], "--")
-    #     plt.plot(eb_dba_tpls[u][:, 0], eb_dba_tpls[u]
-    #              [:, 1], "black", linewidth=3)
-    #     plt.show()
+    #     # util.plot_mean_template_with_train(eb_dba_tpls[u], users_data[u][:training])
+    #     util.plot_mean_template_with_train_3D(eb_dba_tpls[u], users_data[u][:training])
 
     # calculate DTW with the EB-DBA signature
     with util.my_timer("testing..."):
@@ -44,7 +48,7 @@ def LS_DBA_based_classify(read_fun, users_num: int, training: int, genuine: int,
                 DTW_test[u, sig] = dtw.DTW(
                     users_data[u][sig], eb_dba_tpls[u], penalty=penalty, local_stability=LS[u])
 
-    with util.my_timer("calucate threshold..."):
+    with util.my_timer("calculate threshold..."):
         threshold_array = []
         for u in range(users_num):
             threshold_array.append(util.get_ls_dba_tpl_threshold(eb_dba_tpls[u], LS[u], users_data[u]))

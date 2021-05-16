@@ -48,9 +48,10 @@ document.addEventListener("keydown", (event) => {
 });
 
 finishBtn.addEventListener("click", async (e) => {
-    let signature_data = data.filter((p) => { return p !== null }).map((p) => { return { x: p.x, y: p.y, z: p.z } });
-    let signature = { x: [], y: [], z: [] };
+    let signature_data = data.filter((p) => { return p !== null }).map((p) => { return { ts: p.ts, x: p.x, y: p.y, z: p.z } });
+    let signature = { ts:[], x: [], y: [], z: [] };
     for (let p of signature_data) {
+        signature.ts.push(p.ts);
         signature.x.push(p.x);
         signature.y.push(p.y);
         signature.z.push(p.z);
@@ -68,6 +69,8 @@ finishBtn.addEventListener("click", async (e) => {
 
     data = [];
     canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+
+    console.log(signature);
 
     document.body.classList.remove("loaded");
     let res = await axios.post('/api/verification/eb_dba', {
@@ -124,7 +127,7 @@ function onResults(results) {
 
             if (closeEnough(thumb, index_finger, 0.06)) {
                 drawLandmarks(canvasCtx, data[data.length - 1], thumb);
-                data.push(thumb);
+                data.push({ts: Date.now(), ...thumb});
             } else {
                 drawPoints(fakeCanvasCtx, [thumb, index_finger]);
                 if (data[data.length - 1] !== null) {
