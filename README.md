@@ -11,6 +11,7 @@ python main.py
 
 # run osv server
 cd src/server
+python model.py
 python server.py
 ```
 
