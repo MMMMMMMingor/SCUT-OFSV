@@ -50,7 +50,7 @@ def EB_DBA_based_classify(read_fun, users_num: int, training: int, genuine: int,
     with util.my_timer("calculate threshold..."):
         threshold_array = []
         for u in range(users_num):
-            threshold_array.append(util.get_eb_dba_tpl_threshold(eb_dba_tpls[u], users_data[u]))
+            threshold_array.append(util.get_eb_dba_tpl_threshold(eb_dba_tpls[u], users_data[u][0:training]))
 
     # calculate FAR, FRR, EER
     with util.my_timer("calculating EER... "):

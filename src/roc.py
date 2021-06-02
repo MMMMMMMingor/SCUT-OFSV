@@ -32,6 +32,7 @@ def user_independent_ROC(users_num: int, training: int, genuine: int, forged: in
     idxr = idx[-1]
     EER = ((FRR[idxr] + FAR[idxl]) / 2)
 
+    plt.plot(np.arange(0, 1, 0.0001), np.arange(0, 1, 0.0001), "--")
     plt.plot(FRR, FAR, label="ROC")
     plt.plot(FRR[idxl], EER, 'ro',
              label=f"EER: {round(EER*100, 2)}%")

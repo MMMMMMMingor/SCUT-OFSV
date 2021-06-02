@@ -43,7 +43,7 @@ def single_tpl_min_based_classify(read_fun, users_num: int, training: int, genui
     with util.my_timer("calculate threshold..."):
         threshold_array = []
         for u in range(users_num):
-            threshold_array.append(util.get_single_min_threshold(single_tpls[u], users_data[u]))
+            threshold_array.append(util.get_single_min_threshold(single_tpls[u], users_data[u][0:training]))
 
     # calculate FAR, FRR, EER
     with util.my_timer("calculating EER... "):

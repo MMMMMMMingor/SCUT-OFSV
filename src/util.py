@@ -1,3 +1,4 @@
+from enum import Flag
 import time
 import numpy as np
 import pandas as pd
@@ -69,6 +70,23 @@ def scatter_signatures(read_fun, user_no: int, sig_num: int, inverse_axis=False)
     plt.show()
 
 
+def plot_signature(data: pd.DataFrame, inverse_axis: bool = True):
+    data_x, data_y = data["x"], data["y"]
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.set_xlabel("x index")
+    ax.set_ylabel("y index")
+    ax.set_title("3D signature")
+
+    if inverse_axis == True:
+        ax.invert_xaxis()
+        ax.invert_yaxis()
+
+    ax.plot(data_x, data_y, "black", linewidth=3)
+
+    plt.show()
+
 def plot_signature_3D(data: pd.DataFrame):
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
@@ -117,21 +135,25 @@ def scatter_signature_3D(data: pd.DataFrame):
     plt.show()
 
 
-def plot_signatures_features(read_fun, user_no, sig_num):
+def plot_signatures_features(read_fun, user_no, sig_num, inverse_axis=False):
     sig = read_fun(user_no, sig_num)
 
     columns_len = len(sig.columns)
 
-    fig, ax_arr = plt.subplots(columns_len + 1, figsize=(3, 8))
+    fig, ax_arr = plt.subplots(4, 2, figsize=(6, 4))
+    # fig, ax_arr = plt.subplots(columns_len+1, figsize=(3, 8))
 
-    ax = ax_arr[0]
+    ax = ax_arr[0, 0]
+    if inverse_axis == True:
+        ax.invert_xaxis()
+        ax.invert_yaxis()
     ax.set_xticks([])
     ax.set_yticks([])
     ax.plot(sig["x"], sig["y"])
 
     for idx, column in enumerate(sig.columns):
         idx = idx + 1
-        ax = ax_arr[idx]
+        ax = ax_arr[idx % 4, int(idx / 4)]
         ax.set_xticks([])
         ax.set_yticks([])
         ax.set_ylabel(column)
@@ -143,8 +165,6 @@ def plot_signatures_features(read_fun, user_no, sig_num):
 
 def plot_signature_in_timestamp(data: pd.DataFrame):
     plt.rcParams["figure.figsize"] = (12,4)
-    start = data['ts'][0]
-    # data['ts'] = data['ts'] - start
     for ts, x in zip(data['ts'], data['x']):
         plt.vlines(x=ts, ymin=0, ymax=x)
 
